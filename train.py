@@ -1,4 +1,3 @@
-
 import os
 import sys
 import time
@@ -13,7 +12,6 @@ import torch.optim as optim
 from data import data_utils
 from data.data_utils import load_train_data
 from transformer.models import Transformer
-
 
 use_cuda = torch.cuda.is_available()
 
@@ -44,8 +42,8 @@ def create_model(opt):
 
 def main(opt):
     print('Loading training and development data..')
-    src_field, trg_field, train_iter, dev_iter = load_train_data(opt.data_path, opt.batch_size,
-                                                                 opt.max_src_seq_len, opt.max_tgt_seq_len, use_cuda)
+    _, _, train_iter, dev_iter = load_train_data(opt.data_path, opt.batch_size,
+                                                 opt.max_src_seq_len, opt.max_tgt_seq_len, use_cuda)
     # Create a new model or load an existing one.
     model, model_state = create_model(opt)
     init_epoch = model_state['curr_epochs']
@@ -69,7 +67,7 @@ def main(opt):
         print('Training and validation log will be written in {} and {}'
               .format(log_train_file, log_dev_file))
 
-    for epoch in range(init_epoch+1, opt.max_epochs+1):
+    for epoch in range(init_epoch + 1, opt.max_epochs + 1):
         # Execute training steps for 1 epoch.
         train_loss, train_sents = train(model, criterion, optimizer, train_iter, model_state)
         print('Epoch {}'.format(epoch), 'Train_ppl: {0:.2f}'.format(train_loss),
@@ -89,12 +87,12 @@ def main(opt):
         if opt.log and log_train_file and log_dev_file:
             with open(log_train_file, 'a') as log_tf, open(log_dev_file, 'a') as log_df:
                 log_tf.write('{epoch},{ppl:0.2f},{sents}\n'.format(
-                    epoch=epoch, ppl=train_loss, sents=train_sents,))
+                    epoch=epoch, ppl=train_loss, sents=train_sents, ))
                 log_df.write('{epoch},{ppl:0.2f},{sents}\n'.format(
-                    epoch=epoch, ppl=eval_loss, sents=eval_sents,))
+                    epoch=epoch, ppl=eval_loss, sents=eval_sents, ))
 
 
-def train(model, criterion, optimizer, train_iter, model_state): # TODO: fix opt
+def train(model, criterion, optimizer, train_iter, model_state):  # TODO: fix opt
     model.train()
     opt = model_state['opt']
     train_loss, train_loss_total = 0.0, 0.0
@@ -123,7 +121,7 @@ def train(model, criterion, optimizer, train_iter, model_state): # TODO: fix opt
 
         train_loss_total += float(step_loss.data[0])
         n_words_total += torch.sum(dec_inputs_len)
-        n_sents_total += dec_inputs_len.size(0) # batch_size
+        n_sents_total += dec_inputs_len.size(0)  # batch_size
         model_state['train_steps'] += 1
 
         # Display training status
@@ -131,7 +129,7 @@ def train(model, criterion, optimizer, train_iter, model_state): # TODO: fix opt
             loss_int = (train_loss_total - train_loss)
             n_words_int = (n_words_total - n_words)
             n_sents_int = (n_sents_total - n_sents)
-            
+
             loss_per_words = loss_int / n_words_int
             avg_ppl = math.exp(loss_per_words) if loss_per_words < 300 else float("inf")
             time_elapsed = (time.time() - start_time)
@@ -147,7 +145,7 @@ def train(model, criterion, optimizer, train_iter, model_state): # TODO: fix opt
             start_time = time.time()
 
     # return per_word_loss over 1 epoch.
-    return math.exp(train_loss_total/n_words_total), n_sents_total
+    return math.exp(train_loss_total / n_words_total), n_sents_total
 
 
 def eval(model, criterion, dev_iter):
@@ -171,7 +169,7 @@ def eval(model, criterion, dev_iter):
         print('  {} samples seen'.format(n_sents_total))
 
     # return per_word_loss.
-    return math.exp(eval_loss_total/n_words_total), n_sents_total
+    return math.exp(eval_loss_total / n_words_total), n_sents_total
 
 
 if __name__ == '__main__':
