@@ -12,14 +12,10 @@ use_cuda = torch.cuda.is_available()
 
 def main(opt):
     model_state = torch.load(opt.model_path)
-    model_opt = model_state['opt']
-
-    model = Transformer(model_opt.n_layers, model_opt.d_k, model_opt.d_v, model_opt.d_model, model_opt.d_ff, model_opt.d_word_vec, model_opt.n_heads,
-                        model_opt.max_src_seq_len, model_opt.max_tgt_seq_len, model_opt.src_vocab_size, model_opt.tgt_vocab_size,
-                        model_opt.dropout, model_opt.share_proj_weight, model_opt.share_embs_weight, model_opt.weighted_model)
-
+    model = Transformer(model_state['opt'])
     model.load_state_dict(model_state['model_params'])
     model.eval()
+
     if use_cuda:
         print('Using GPU..')
         model = model.cuda()
@@ -29,7 +25,6 @@ def main(opt):
 
     lines = 0
     print ('Translated output will be written in {}'.format(opt.decode_output))
-
     with open(opt.decode_output, 'w') as output:
         for batch in test_iter:
 
