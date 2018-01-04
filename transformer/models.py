@@ -115,14 +115,8 @@ class Transformer(nn.Module):
             self.encoder.src_emb.weight = self.decoder.tgt_emb.weight
 
     def trainable_params(self):
-        ''' Avoid updating the position encoding '''
+        # Avoid updating the position encoding
         return filter(lambda p: p.requires_grad, self.parameters())
-
-#        ''' Avoid updating the position encoding '''
-#        enc_freezed_param_ids = set(map(id, self.encoder.pos_emb.parameters()))
-#        dec_freezed_param_ids = set(map(id, self.decoder.pos_emb.parameters()))
-#        freezed_param_ids = enc_freezed_param_ids | dec_freezed_param_ids
-#        return (p for p in self.parameters() if id(p) not in freezed_param_ids)
 
     def encode(self, enc_inputs, enc_inputs_len, return_attn=False):
         return self.encoder(enc_inputs, enc_inputs_len, return_attn)
