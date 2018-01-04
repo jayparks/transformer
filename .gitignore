@@ -1,0 +1,10 @@
+model_*
+*.pyc
+*.ipynb
+ipynb/.*
+.DS_Store
+.idea
+data/newstest2013-train.t7
+data/newstest2013.src.dict
+data/newstest2013.tgt.dict
+data/newstest2013.en.trans.*
