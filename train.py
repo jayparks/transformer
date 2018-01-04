@@ -94,7 +94,7 @@ def main(opt):
                     epoch=epoch, ppl=eval_loss, sents=eval_sents,))
 
 
-def train(model, criterion, optimizer, train_iter, model_state):
+def train(model, criterion, optimizer, train_iter, model_state): # TODO: fix opt
     model.train()
     opt = model_state['opt']
     train_loss, train_loss_total = 0.0, 0.0
