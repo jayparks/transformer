@@ -12,7 +12,7 @@ from data.data_utils import convert_text2idx
 
 def main(opt):
     train_src, train_tgt = read_parallel_corpus(opt.train_src, opt.train_tgt, opt.max_len, opt.keep_case)
-    dev_src, dev_tgt = read_parallel_corpus(opt.dev_src, opt.dev_tgt, opt.max_len, opt.keep_case)
+    dev_src, dev_tgt = read_parallel_corpus(opt.dev_src, opt.dev_tgt, None, opt.keep_case)
 
     src_counter, src_word2idx, src_idx2word, = torch.load(opt.src_vocab) if opt.src_vocab \
         else build_vocab(train_src, opt.src_vocab_size, opt.min_word_count, data_utils.extra_tokens)

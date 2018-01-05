@@ -81,7 +81,7 @@ class MultiBranchAttention(nn.Module):
 
         self.attention = ScaledDotProductAttention(d_k, dropout)
         self.pos_ffn = nn.ModuleList([
-            PoswiseFeedForwardNet(d_model, d_ff//n_branches, dropout) for _ in range(n_branches)])
+            PoswiseFeedForwardNet(d_model, d_ff, dropout) for _ in range(n_branches)]) # TODO: d_ff//n_branches
         self.layer_norm = LayerNormalization(d_model)
         self.dropout = nn.Dropout(dropout)
 

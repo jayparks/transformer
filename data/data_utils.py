@@ -38,7 +38,9 @@ def read_corpus(src_path, max_len, keep_case=True):
     src_sents = []
     empty_lines, exceed_lines = 0, 0
     with open(src_path) as src_file:
-        for src_line in src_file:
+        for idx, src_line in enumerate(src_file):
+            if idx % 10000 == 0:
+                print('  reading {} lines..'.format(idx))
             if src_line == '':  # remove empty lines
                 empty_lines += 1
                 continue
@@ -63,7 +65,9 @@ def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
     src_sents, tgt_sents = [], []
     empty_lines, exceed_lines = 0, 0
     with open(src_path) as src_file, open(tgt_path) as tgt_file:
-        for src_line, tgt_line in zip(src_file, tgt_file):
+        for idx, (src_line, tgt_line) in enumerate(zip(src_file, tgt_file)):
+            if idx % 10000 == 0:
+                print('  reading {} lines..'.format(idx))
             if src_line == '' or tgt_line == '': # remove empty lines
                 empty_lines += 1
                 continue
