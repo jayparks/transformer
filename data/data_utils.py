@@ -48,8 +48,7 @@ def read_corpus(src_path, max_len, keep_case=True):
                 src_line = src_line.lower()
 
             src_words = src_line.strip().split()
-            if max_len is not None and \
-                    len(src_words) > max_len:
+            if max_len is not None and len(src_words) > max_len:
                 exceed_lines += 1
                 continue
             src_sents.append(src_words)
@@ -77,8 +76,7 @@ def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
 
             src_words = src_line.strip().split()
             tgt_words = tgt_line.strip().split()
-            if max_len is not None and \
-                len(src_words) > max_len or len(tgt_words) > max_len:
+            if max_len is not None and (len(src_words) > max_len or len(tgt_words) > max_len):
                 exceed_lines += 1
                 continue
             src_sents.append(src_words)
