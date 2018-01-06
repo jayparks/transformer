@@ -18,7 +18,7 @@ class ScheduledOptimizer(object):
         "Zero out the gradients by the inner optimizer"
         self.optimizer.zero_grad()
 
-    def update_learning_rate(self):
+    def update_lr(self):
         ''' Learning rate scheduling per step '''
 
         self.n_current_steps += 1

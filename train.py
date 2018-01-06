@@ -119,8 +119,9 @@ def train(model, criterion, optimizer, train_iter, model_state):  # TODO: fix op
         # Execute a single training step: backward
         step_loss.backward()
         if opt.max_grad_norm:
-            clip_grad_norm(model.trainable_params(), opt.max_grad_norm)
+            clip_grad_norm(model.trainable_params(), float(opt.max_grad_norm))
         optimizer.step()
+        optimizer.update_lr()
 
         train_loss_total += float(step_loss.data[0])
         n_words_total += torch.sum(dec_inputs_len)
@@ -199,7 +200,7 @@ if __name__ == '__main__':
     parser.add_argument('-batch_size', type=int, default=128)
     parser.add_argument('-max_src_seq_len', type=int, default=50)
     parser.add_argument('-max_tgt_seq_len', type=int, default=50)
-    parser.add_argument('-max_grad_norm', type=float, default=3.0)
+    parser.add_argument('-max_grad_norm', default=None)
     parser.add_argument('-n_warmup_steps', type=int, default=4000)
     parser.add_argument('-display_freq', type=int, default=100)
     parser.add_argument('-save_freq', type=int, default=1000)
