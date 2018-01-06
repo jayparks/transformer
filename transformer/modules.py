@@ -61,7 +61,7 @@ class PosEncoding(nn.Module):
 
     def forward(self, input_len):
         max_len = max(input_len)
-        input_pos = torch.LongTensor(
-            [list(range(1, len+1)) + [0]*(max_len-len) for len in input_len])
+        tensor = torch.cuda.LongTensor if input_len.is_cuda else torch.LongTensor
+        input_pos = tensor([list(range(1, len+1))+[0]*(max_len-len) for len in input_len])
 
         return self.pos_enc(input_pos)
