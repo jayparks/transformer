@@ -12,6 +12,7 @@ import torch.optim as optim
 from data import data_utils
 from data.data_utils import load_train_data
 from transformer.models import Transformer
+from transformer.optimizer import ScheduledOptimizer
 
 use_cuda = torch.cuda.is_available()
 
@@ -55,7 +56,9 @@ def main(opt):
     # Loss and Optimizer
     # If size_average=True (default): Loss for a mini-batch is averaged over non-ignore index targets.
     criterion = nn.CrossEntropyLoss(size_average=False, ignore_index=data_utils.PAD)
-    optimizer = optim.Adam(model.trainable_params(), lr=opt.lr)
+    optimizer = ScheduledOptimizer(
+        optim.Adam(model.trainable_params(), lr=opt.lr, betas=(0.9, 0.98), eps=1e-9),
+        opt.d_model, opt.n_warmup_steps)
 
     if opt.log:
         log_train_file = opt.log + '.train.log'
@@ -191,12 +194,13 @@ if __name__ == '__main__':
     parser.add_argument('-weighted_model', action='store_true')
 
     # training params
-    parser.add_argument('-lr', type=float, default=0.0002)
+    parser.add_argument('lr', type=float, default=0.0002)
     parser.add_argument('-max_epochs', type=int, default=10)
     parser.add_argument('-batch_size', type=int, default=128)
     parser.add_argument('-max_src_seq_len', type=int, default=50)
     parser.add_argument('-max_tgt_seq_len', type=int, default=50)
     parser.add_argument('-max_grad_norm', type=float, default=3.0)
+    parser.add_argument('-n_warmup_steps', type=int, default=4000)
     parser.add_argument('-display_freq', type=int, default=100)
     parser.add_argument('-save_freq', type=int, default=1000)
     parser.add_argument('-valid_freq', type=int, default=1000)
