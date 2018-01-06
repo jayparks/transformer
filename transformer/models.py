@@ -11,12 +11,13 @@ from transformer.layers import EncoderLayer, DecoderLayer, \
 
 
 def get_attn_pad_mask(seq_q, seq_k):
-    assert seq_q.dim() == 2 and seq_k.dim() == 2 # [b_size x len_q] and [b_size x len_k]
-    non_pad_mask_q = (seq_q != data_utils.PAD).unsqueeze(-1) # [b_size x len_q x 1]
-    non_pad_mask_k = (seq_k != data_utils.PAD).unsqueeze(1) # [b_size x 1 x len_k]
-    non_pad_mask = torch.bmm(non_pad_mask_q, non_pad_mask_k) # [b_size x len_q x len_k]
-
-    return torch.ones_like(non_pad_mask) - non_pad_mask
+    ''' Indicate the padding-related part to mask '''
+    assert seq_q.dim() == 2 and seq_k.dim() == 2
+    b_size, len_q = seq_q.size()
+    b_size, len_k = seq_k.size()
+    pad_attn_mask = seq_k.data.eq(data_utils.PAD).unsqueeze(1)  # b_size x 1 x len_k
+    pad_attn_mask = pad_attn_mask.expand(b_size, len_q, len_k) # b_size x len_q x len_k
+    return pad_attn_mask
 
 
 def get_attn_subsequent_mask(seq):

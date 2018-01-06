@@ -57,7 +57,7 @@ class PosEncoding(nn.Module):
         # additional one row for PAD idx
         self.pos_enc = nn.Embedding(max_seq_len + 1, d_word_vec)
         # fixed positional encoding
-        self.pos_enc.weight = nn.Parameter(torch.from_numpy(pos_enc).float(), requires_grad=False)
+        self.pos_enc.weight = nn.Parameter(torch.from_numpy(pos_enc).float(), False)
 
     def forward(self, input_len):
         max_len = max(input_len)
