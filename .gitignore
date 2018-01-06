@@ -1,3 +1,4 @@
+models/
 model_*
 *.pyc
 *.ipynb
