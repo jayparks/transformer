@@ -195,7 +195,7 @@ if __name__ == '__main__':
     parser.add_argument('-weighted_model', action='store_true')
 
     # training params
-    parser.add_argument('lr', type=float, default=0.0002)
+    parser.add_argument('-lr', type=float, default=0.0002)
     parser.add_argument('-max_epochs', type=int, default=10)
     parser.add_argument('-batch_size', type=int, default=128)
     parser.add_argument('-max_src_seq_len', type=int, default=50)
