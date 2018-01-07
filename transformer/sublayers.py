@@ -81,7 +81,7 @@ class MultiBranchAttention(nn.Module):
 
         self.attention = ScaledDotProductAttention(d_k, dropout)
         self.pos_ffn = nn.ModuleList([
-            PoswiseFeedForwardNet(d_model, d_ff, dropout) for _ in range(n_branches)]) # TODO: d_ff//n_branches
+            PoswiseFeedForwardNet(d_model, d_ff, dropout) for _ in range(n_branches)])
         self.layer_norm = LayerNormalization(d_model)
         self.dropout = nn.Dropout(dropout)
 
@@ -114,7 +114,6 @@ class MultiBranchAttention(nn.Module):
         #outputs = self.dropout(outputs)
 
         outputs = self.kp_softmax(self.w_kp).view(-1, 1, 1) * outputs
-        outputs = self.w_kp.view(-1, 1, 1) * outputs
         outputs = [out.squeeze(0).view(-1, len_q, d_model) \
                    for out in torch.split(outputs, split_size=1, dim=0)] # [b_size x len_q x d_model] x n_branches
         outputs = torch.cat([pos_ffn(output) for output, pos_ffn in \
