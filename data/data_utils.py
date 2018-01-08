@@ -41,7 +41,7 @@ def read_corpus(src_path, max_len, keep_case=True):
         for idx, src_line in enumerate(src_file):
             if idx % 10000 == 0:
                 print('  reading {} lines..'.format(idx))
-            if src_line == '':  # remove empty lines
+            if src_line.strip() == '':  # remove empty lines
                 empty_lines += 1
                 continue
             if not keep_case:  # check keep_case
@@ -67,7 +67,7 @@ def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
         for idx, (src_line, tgt_line) in enumerate(zip(src_file, tgt_file)):
             if idx % 10000 == 0:
                 print('  reading {} lines..'.format(idx))
-            if src_line == '' or tgt_line == '': # remove empty lines
+            if src_line.strip() == '' or tgt_line.strip() == '': # remove empty lines
                 empty_lines += 1
                 continue
             if not keep_case: # check keep_case
