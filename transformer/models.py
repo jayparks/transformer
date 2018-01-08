@@ -17,6 +17,7 @@ def get_attn_pad_mask(seq_q, seq_k):
     b_size, len_k = seq_k.size()
     pad_attn_mask = seq_k.data.eq(data_utils.PAD).unsqueeze(1)  # b_size x 1 x len_k
     pad_attn_mask = pad_attn_mask.expand(b_size, len_q, len_k) # b_size x len_q x len_k
+
     return Variable(pad_attn_mask)
 
 
@@ -25,7 +26,6 @@ def get_attn_subsequent_mask(seq):
     attn_shape = [seq.size(0), seq.size(1), seq.size(1)]
     subsequent_mask = np.triu(np.ones(attn_shape), k=1)
     subsequent_mask = torch.from_numpy(subsequent_mask).byte()
-
     if seq.is_cuda:
         subsequent_mask = subsequent_mask.cuda()
 
@@ -101,16 +101,18 @@ class Transformer(nn.Module):
                                opt.max_src_seq_len, opt.src_vocab_size, opt.dropout, opt.weighted_model)
         self.decoder = Decoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.d_word_vec, opt.n_heads,
                                opt.max_tgt_seq_len, opt.tgt_vocab_size, opt.dropout, opt.weighted_model)
-        self.tgt_proj = nn.Linear(opt.d_model, opt.tgt_vocab_size)
+        self.tgt_proj = nn.Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
 
         assert opt.d_model == opt.d_word_vec, \
             'To facilitate the residual connections, ' \
             'the dimensions of "d_model" and "d_word_vec" shall be the same.'
 
         if opt.share_proj_weight:
+            print('Sharing source and target embedding..')
             self.tgt_proj.weight = self.decoder.tgt_emb.weight
 
         if opt.share_embs_weight:
+            print('Sharing target embedding and projection..')
             assert opt.src_vocab_size == opt.tgt_vocab_size, \
                 'To share word embeddings, the vocabulary size of src/tgt should be the same'
             self.encoder.src_emb.weight = self.decoder.tgt_emb.weight
