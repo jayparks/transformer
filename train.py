@@ -18,16 +18,14 @@ use_cuda = torch.cuda.is_available()
 
 
 def create_model(opt):
-    dataset = torch.load(opt.data_path)
-    opt.src_vocab_size = len(dataset['src_vocab'])
-    opt.tgt_vocab_size = len(dataset['tgt_vocab'])
+    data = torch.load(opt.data_path)
+    opt.src_vocab_size = len(data['src_vocab'])
+    opt.tgt_vocab_size = len(data['tgt_vocab'])
 
     print('Creating new model parameters..')
-    # Initialize a model state.
-    model = Transformer(opt)
-    model_state = {
-        'opt': opt, 'curr_epochs': 0, 'train_steps': 0
-    }
+    model = Transformer(opt)  # Initialize a model state.
+    model_state = {'opt': opt, 'curr_epochs': 0, 'train_steps': 0}
+
     # If opt.model_path exists, load model parameters.
     if os.path.exists(opt.model_path):
         print('Reloading model parameters..')
