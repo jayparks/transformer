@@ -33,12 +33,12 @@ def get_attn_subsequent_mask(seq):
 
 
 class Encoder(nn.Module):
-    def __init__(self, n_layers, d_k, d_v, d_model, d_ff, d_word_vec, n_heads,
+    def __init__(self, n_layers, d_k, d_v, d_model, d_ff, n_heads,
                  max_seq_len, src_vocab_size, dropout=0.1, weighted=False):
         super(Encoder, self).__init__()
         self.d_model = d_model
-        self.src_emb = nn.Embedding(src_vocab_size, d_word_vec, padding_idx=data_utils.PAD,)
-        self.pos_emb = PosEncoding(max_seq_len * 10, d_word_vec) # TODO: *10 fix
+        self.src_emb = nn.Embedding(src_vocab_size, d_model, padding_idx=data_utils.PAD,)
+        self.pos_emb = PosEncoding(max_seq_len * 10, d_model) # TODO: *10 fix
         self.dropout_emb = nn.Dropout(dropout)
         self.layer_type = EncoderLayer if not weighted else WeightedEncoderLayer
         self.layers = nn.ModuleList(
@@ -60,12 +60,12 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, n_layers, d_k, d_v, d_model, d_ff, d_word_vec, n_heads,
+    def __init__(self, n_layers, d_k, d_v, d_model, d_ff, n_heads,
                  max_seq_len, tgt_vocab_size, dropout=0.1, weighted=False):
         super(Decoder, self).__init__()
         self.d_model = d_model
-        self.tgt_emb = nn.Embedding(tgt_vocab_size, d_word_vec, padding_idx=data_utils.PAD, )
-        self.pos_emb = PosEncoding(max_seq_len * 10, d_word_vec) # TODO: *10 fix
+        self.tgt_emb = nn.Embedding(tgt_vocab_size, d_model, padding_idx=data_utils.PAD, )
+        self.pos_emb = PosEncoding(max_seq_len * 10, d_model) # TODO: *10 fix
         self.dropout_emb = nn.Dropout(dropout)
         self.layer_type = DecoderLayer if not weighted else WeightedDecoderLayer
         self.layers = nn.ModuleList(
