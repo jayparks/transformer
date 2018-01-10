@@ -7,7 +7,7 @@ import torch.nn as nn
 class ScaledDotProductAttention(nn.Module):
     def __init__(self, d_k=None, dropout=.1):
         super(ScaledDotProductAttention, self).__init__()
-        self.d_k = d_k
+        self.scale_factor = np.sqrt(d_k)
         self.softmax = nn.Softmax(dim=-1)
         self.dropout = nn.Dropout(dropout)
 
@@ -15,13 +15,12 @@ class ScaledDotProductAttention(nn.Module):
         # q: [b_size x len_q x d_k]
         # k: [b_size x len_k x d_k]
         # v: [b_size x len_v x d_v] note: (len_k == len_v)
-        scale_factor = np.sqrt(self.d_k) if self.d_k else np.sqrt(k.size(-1))
-        attn = torch.bmm(q, k.transpose(1, 2))/scale_factor # attn: [b_size x len_q x len_k]
+        attn = torch.bmm(q, k.transpose(1, 2)) / self.scale_factor  # attn: [b_size x len_q x len_k]
         if attn_mask is not None:
             assert attn_mask.size() == attn.size()
-            attn.masked_fill_(attn_mask, -2**32+1)
+            attn.data.masked_fill_(attn_mask, -float('inf'))
 
-        attn = self.softmax(attn)#.masked_fill_(attn_mask, 0.0)
+        attn = self.softmax(attn)
         attn = self.dropout(attn)
         outputs = torch.bmm(attn, v) # outputs: [b_size x len_q x d_v]
 

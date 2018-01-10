@@ -11,14 +11,13 @@ from transformer.layers import EncoderLayer, DecoderLayer, \
 
 
 def get_attn_pad_mask(seq_q, seq_k):
-    ''' Indicate the padding-related part to mask '''
     assert seq_q.dim() == 2 and seq_k.dim() == 2
     b_size, len_q = seq_q.size()
     b_size, len_k = seq_k.size()
     pad_attn_mask = seq_k.data.eq(data_utils.PAD).unsqueeze(1)  # b_size x 1 x len_k
     pad_attn_mask = pad_attn_mask.expand(b_size, len_q, len_k) # b_size x len_q x len_k
 
-    return Variable(pad_attn_mask)
+    return pad_attn_mask
 
 
 def get_attn_subsequent_mask(seq):
@@ -29,7 +28,7 @@ def get_attn_subsequent_mask(seq):
     if seq.is_cuda:
         subsequent_mask = subsequent_mask.cuda()
 
-    return Variable(subsequent_mask)
+    return subsequent_mask
 
 
 class Encoder(nn.Module):
@@ -37,8 +36,8 @@ class Encoder(nn.Module):
                  max_seq_len, src_vocab_size, dropout=0.1, weighted=False):
         super(Encoder, self).__init__()
         self.d_model = d_model
-        self.src_emb = nn.Embedding(src_vocab_size, d_word_vec, padding_idx=data_utils.PAD, )
-        self.pos_emb = PosEncoding(max_seq_len*10, d_word_vec) # TODO: *10 fix
+        self.src_emb = nn.Embedding(src_vocab_size, d_word_vec, padding_idx=data_utils.PAD,)
+        self.pos_emb = PosEncoding(max_seq_len * 10, d_word_vec) # TODO: *10 fix
         self.dropout_emb = nn.Dropout(dropout)
         self.layer_type = EncoderLayer if not weighted else WeightedEncoderLayer
         self.layers = nn.ModuleList(
