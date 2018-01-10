@@ -134,9 +134,9 @@ def load_train_data(data_path, batch_size, max_src_len, max_trg_len, use_cuda=Fa
     dev_src, dev_tgt = dataset['dev_src'], dataset['dev_tgt']
 
     train_data = ParallelDataset(train_src, train_tgt, fields=fields, filter_pred=filter_pred,)
-    train_iter = BucketIterator(dataset=train_data, batch_size=batch_size, train=True,  # Variable(volatile=False)
-                                sort_key=lambda x: data.interleave_keys(len(x.src), len(x.trg)),
-                                repeat=False, shuffle=True, device=device)
+    train_iter = Iterator(dataset=train_data, batch_size=batch_size, train=True,  # Variable(volatile=False)
+                          sort_key=lambda x: data.interleave_keys(len(x.src), len(x.trg)),
+                          repeat=False, shuffle=True, device=device)
     dev_data = ParallelDataset(dev_src, dev_tgt, fields=fields,)
     dev_iter = Iterator(dataset=dev_data, batch_size=batch_size, train=False,     # Variable(volatile=True)
                         repeat=False, device=device, shuffle=False, sort=False,)
