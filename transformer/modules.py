@@ -16,7 +16,7 @@ class Linear(nn.Module):
 
 
 class ScaledDotProductAttention(nn.Module):
-    def __init__(self, d_k=None, dropout=.1):
+    def __init__(self, d_k, dropout=.1):
         super(ScaledDotProductAttention, self).__init__()
         self.scale_factor = np.sqrt(d_k)
         self.softmax = nn.Softmax(dim=-1)

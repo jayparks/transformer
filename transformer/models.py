@@ -97,15 +97,11 @@ class Decoder(nn.Module):
 class Transformer(nn.Module):
     def __init__(self, opt):
         super(Transformer, self).__init__()
-        self.encoder = Encoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.d_word_vec, opt.n_heads,
+        self.encoder = Encoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.n_heads,
                                opt.max_src_seq_len, opt.src_vocab_size, opt.dropout, opt.weighted_model)
-        self.decoder = Decoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.d_word_vec, opt.n_heads,
+        self.decoder = Decoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.n_heads,
                                opt.max_tgt_seq_len, opt.tgt_vocab_size, opt.dropout, opt.weighted_model)
         self.tgt_proj = Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
-
-        assert opt.d_model == opt.d_word_vec, \
-            'To facilitate the residual connections, ' \
-            'the dimensions of "d_model" and "d_word_vec" shall be the same.'
 
         if opt.share_proj_weight:
             print('Sharing source and target embedding..')

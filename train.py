@@ -56,10 +56,8 @@ def main(opt):
     # Loss and Optimizer
     # If size_average=True (default): Loss for a mini-batch is averaged over non-ignore index targets.
     criterion = nn.CrossEntropyLoss(size_average=False, ignore_index=data_utils.PAD)
-    optimizer = ScheduledOptimizer(
-        optim.Adam(model.trainable_params(), lr=opt.lr, betas=(0.9, 0.98), eps=1e-9),
-        opt.d_model, opt.n_warmup_steps)
-
+    optimizer = ScheduledOptimizer(optim.Adam(model.trainable_params(), betas=(0.9, 0.98), eps=1e-9),
+                                   opt.d_model, opt.n_warmup_steps)
     if opt.log:
         log_train_file = opt.log + '.train.log'
         log_dev_file = opt.log + '.valid.log'
@@ -186,7 +184,6 @@ if __name__ == '__main__':
     parser.add_argument('-d_k', type=int, default=64)
     parser.add_argument('-d_v', type=int, default=64)
     parser.add_argument('-d_ff', type=int, default=2048)
-    parser.add_argument('-d_word_vec', type=int, default=512)
     parser.add_argument('-n_heads', type=int, default=8)
     parser.add_argument('-n_layers', type=int, default=6)
     parser.add_argument('-dropout', type=float, default=0.1)
