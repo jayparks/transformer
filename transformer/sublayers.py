@@ -2,6 +2,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.init as init
+
+from transformer.modules import Linear
 from transformer.modules import ScaledDotProductAttention
 from transformer.modules import LayerNormalization
 
@@ -20,7 +22,7 @@ class MultiHeadAttention(nn.Module):
 
         self.attention = ScaledDotProductAttention(d_k, dropout)
         self.layer_norm = LayerNormalization(d_model)
-        self.proj = nn.Linear(n_heads * d_v, d_model)
+        self.proj = Linear(n_heads * d_v, d_model)
         self.dropout = nn.Dropout(dropout)
 
         init.xavier_normal(self.w_q)

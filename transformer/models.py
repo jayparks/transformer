@@ -5,6 +5,7 @@ from torch.autograd import Variable
 import numpy as np
 from data import data_utils
 
+from transformer.modules import Linear
 from transformer.modules import PosEncoding
 from transformer.layers import EncoderLayer, DecoderLayer, \
                                WeightedEncoderLayer, WeightedDecoderLayer
@@ -64,7 +65,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.d_model = d_model
         self.tgt_emb = nn.Embedding(tgt_vocab_size, d_word_vec, padding_idx=data_utils.PAD, )
-        self.pos_emb = PosEncoding(max_seq_len*10, d_word_vec) # TODO: *10 fix
+        self.pos_emb = PosEncoding(max_seq_len * 10, d_word_vec) # TODO: *10 fix
         self.dropout_emb = nn.Dropout(dropout)
         self.layer_type = DecoderLayer if not weighted else WeightedDecoderLayer
         self.layers = nn.ModuleList(
@@ -100,7 +101,7 @@ class Transformer(nn.Module):
                                opt.max_src_seq_len, opt.src_vocab_size, opt.dropout, opt.weighted_model)
         self.decoder = Decoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.d_word_vec, opt.n_heads,
                                opt.max_tgt_seq_len, opt.tgt_vocab_size, opt.dropout, opt.weighted_model)
-        self.tgt_proj = nn.Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
+        self.tgt_proj = Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
 
         assert opt.d_model == opt.d_word_vec, \
             'To facilitate the residual connections, ' \
