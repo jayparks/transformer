@@ -104,11 +104,12 @@ class Transformer(nn.Module):
         self.tgt_proj = Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
 
         if opt.share_proj_weight:
-            print('Sharing source and target embedding..')
+            print('Sharing target embedding and projection..')
+
             self.tgt_proj.weight = self.decoder.tgt_emb.weight
 
         if opt.share_embs_weight:
-            print('Sharing target embedding and projection..')
+            print('Sharing source and target embedding..')
             assert opt.src_vocab_size == opt.tgt_vocab_size, \
                 'To share word embeddings, the vocabulary size of src/tgt should be the same'
             self.encoder.src_emb.weight = self.decoder.tgt_emb.weight
