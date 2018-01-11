@@ -87,6 +87,8 @@ class MultiBranchAttention(nn.Module):
         self.layer_norm = LayerNormalization(d_model)
         self.dropout = nn.Dropout(dropout)
 
+        if is_decoder:
+            init.xavier_normal(self.w_l)
         init.xavier_normal(self.w_q)
         init.xavier_normal(self.w_k)
         init.xavier_normal(self.w_v)
