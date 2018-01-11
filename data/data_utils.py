@@ -33,7 +33,7 @@ def convert_idx2text(example, idx2word):
     return ' '.join(words)
 
 
-def read_corpus(src_path, max_len, keep_case=True):
+def read_corpus(src_path, max_len, lower_case=False):
     print('Reading examples from {}..'.format(src_path))
     src_sents = []
     empty_lines, exceed_lines = 0, 0
@@ -44,7 +44,7 @@ def read_corpus(src_path, max_len, keep_case=True):
             if src_line.strip() == '':  # remove empty lines
                 empty_lines += 1
                 continue
-            if not keep_case:  # check keep_case
+            if lower_case:  # check lower_case
                 src_line = src_line.lower()
 
             src_words = src_line.strip().split()
@@ -59,7 +59,7 @@ def read_corpus(src_path, max_len, keep_case=True):
     return src_sents
 
 
-def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
+def read_parallel_corpus(src_path, tgt_path, max_len, lower_case=False):
     print ('Reading examples from {} and {}..'.format(src_path, tgt_path))
     src_sents, tgt_sents = [], []
     empty_lines, exceed_lines = 0, 0
@@ -70,7 +70,7 @@ def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
             if src_line.strip() == '' or tgt_line.strip() == '': # remove empty lines
                 empty_lines += 1
                 continue
-            if not keep_case: # check keep_case
+            if lower_case:  # check lower_case
                 src_line = src_line.lower()
                 tgt_line = tgt_line.lower()
 
@@ -133,30 +133,31 @@ def load_train_data(data_path, batch_size, max_src_len, max_trg_len, use_cuda=Fa
     dev_src, dev_tgt = dataset['dev_src'], dataset['dev_tgt']
 
     train_data = ParallelDataset(train_src, train_tgt, fields=fields, filter_pred=filter_pred,)
-    train_iter = Iterator(dataset=train_data, batch_size=batch_size, train=True,  # Variable(volatile=False)
+    train_iter = Iterator(dataset=train_data, batch_size=batch_size, train=True, # Variable(volatile=False)
                           sort_key=lambda x: data.interleave_keys(len(x.src), len(x.trg)),
                           repeat=False, shuffle=True, device=device)
     dev_data = ParallelDataset(dev_src, dev_tgt, fields=fields,)
-    dev_iter = Iterator(dataset=dev_data, batch_size=batch_size, train=False,     # Variable(volatile=True)
+    dev_iter = Iterator(dataset=dev_data, batch_size=batch_size, train=False,    # Variable(volatile=True)
                         repeat=False, device=device, shuffle=False, sort=False,)
 
     return src_field, trg_field, train_iter, dev_iter
 
 
-def load_test_data(data_path, src_vocab, batch_size, use_cuda=False):
+def load_test_data(data_path, vocab_path, batch_size, use_cuda=False):
     # Note: sequential=False, use_vocab=False, since we use preprocessed inputs.
     src_field = Field(sequential=True, use_vocab=False, include_lengths=True, batch_first=True,
                       pad_token=PAD, unk_token=UNK, init_token=None, eos_token=None,)
     fields = (src_field, None)
     device = None if use_cuda else -1
 
-    _, src_word2idx, _ = torch.load(src_vocab)
+    vocab = torch.load(vocab_path)
+    _, src_word2idx, _ = vocab['src_dict']
+    lower_case = vocab['lower_case']
 
-    test_src = convert_text2idx( #TODO: fix keep_case
-        read_corpus(data_path, None), src_word2idx)
+    test_src = convert_text2idx(read_corpus(data_path, None, lower_case), src_word2idx)
     test_data = ParallelDataset(test_src, None, fields=fields,)
-    test_iter = Iterator(dataset=test_data, batch_size=batch_size, sort=False,
-                         train=False, repeat=False, shuffle=False, device=device)
+    test_iter = Iterator(dataset=test_data, batch_size=batch_size, train=False,  # Variable(volatile=True)
+                         repeat=False, device=device, shuffle=False, sort=False)
 
     return src_field, test_iter
 

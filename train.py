@@ -19,8 +19,8 @@ use_cuda = torch.cuda.is_available()
 
 def create_model(opt):
     data = torch.load(opt.data_path)
-    opt.src_vocab_size = len(data['src_vocab'])
-    opt.tgt_vocab_size = len(data['tgt_vocab'])
+    opt.src_vocab_size = len(data['src_dict'])
+    opt.tgt_vocab_size = len(data['tgt_dict'])
 
     print('Creating new model parameters..')
     model = Transformer(opt)  # Initialize a model state.

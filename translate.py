@@ -12,8 +12,8 @@ use_cuda = torch.cuda.is_available()
 def main(opt):
     translator = Translator(opt, use_cuda)
 
-    _, _,  tgt_idx2word = torch.load(opt.tgt_vocab)
-    _, test_iter = load_test_data(opt.decode_input, opt.src_vocab, opt.batch_size, use_cuda)
+    _, _, tgt_idx2word = torch.load(opt.vocab)['tgt_dict']
+    _, test_iter = load_test_data(opt.decode_input, opt.vocab, opt.batch_size, use_cuda)
 
     lines = 0
     print ('Translated output will be written in {}'.format(opt.decode_output))
@@ -31,8 +31,7 @@ def main(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Translation hyperparams')
     parser.add_argument('-model_path', required=True, type=str, help='Path to the test data')
-    parser.add_argument('-src_vocab', required=True, type=str, help='Path to an existing source vocab')
-    parser.add_argument('-tgt_vocab', required=True, type=str, help='Path to an existing target vocab')
+    parser.add_argument('-vocab', required=True, type=str, help='Path to an existing vocabulary file')
     parser.add_argument('-decode_input', required=True, type=str, help='Path to the source file to translate')
     parser.add_argument('-decode_output', required=True, type=str, help='Path to write translated sequences' )
     parser.add_argument('-batch_size', type=int, default=1, help='Batch size')
