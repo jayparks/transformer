@@ -105,7 +105,6 @@ class Transformer(nn.Module):
 
         if opt.share_proj_weight:
             print('Sharing target embedding and projection..')
-
             self.tgt_proj.weight = self.decoder.tgt_emb.weight
 
         if opt.share_embs_weight:
