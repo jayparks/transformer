@@ -89,7 +89,7 @@ def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
 
 
 def build_vocab(examples, max_size, min_freq, extra_tokens):
-    print ('Creating vocabulary with max_size {}..'.format(max_size))
+    print ('Creating vocabulary with max limit {}..'.format(max_size))
     counter = Counter()
     word2idx, idx2word = {}, []
     if extra_tokens:

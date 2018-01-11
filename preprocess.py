@@ -14,10 +14,23 @@ def main(opt):
     train_src, train_tgt = read_parallel_corpus(opt.train_src, opt.train_tgt, opt.max_len, opt.keep_case)
     dev_src, dev_tgt = read_parallel_corpus(opt.dev_src, opt.dev_tgt, None, opt.keep_case)
 
-    src_counter, src_word2idx, src_idx2word, = torch.load(opt.src_vocab) if opt.src_vocab \
-        else build_vocab(train_src, opt.src_vocab_size, opt.min_word_count, data_utils.extra_tokens)
-    tgt_counter, tgt_word2idx, tgt_idx2word, = torch.load(opt.tgt_vocab) if opt.tgt_vocab \
-        else build_vocab(train_tgt, opt.tgt_vocab_size, opt.min_word_count, data_utils.extra_tokens)
+    if opt.vocab:
+        src_counter, src_word2idx, src_idx2word, = torch.load(opt.vocab)['src_dict']
+        tgt_counter, tgt_word2idx, tgt_idx2word, = torch.load(opt.vocab)['tgt_dict']
+    else:
+        if opt.share_vocab:
+            print('Building shared vocabulary')
+            vocab_size = min(opt.src_vocab_size, opt.tgt_vocab_size) \
+                if (opt.src_vocab_size is not None and opt.tgt_vocab_size is not None) else None
+            counter, word2idx, idx2word = build_vocab(train_src + train_tgt, vocab_size,
+                                                      opt.min_word_count, data_utils.extra_tokens)
+            src_counter, src_word2idx, src_idx2word = (counter, word2idx, idx2word)
+            tgt_counter, tgt_word2idx, tgt_idx2word = (counter, word2idx, idx2word)
+        else:
+            src_counter, src_word2idx, src_idx2word = build_vocab(train_src, opt.src_vocab_size,
+                                                                  opt.min_word_count, data_utils.extra_tokens)
+            tgt_counter, tgt_word2idx, tgt_idx2word = build_vocab(train_tgt, opt.tgt_vocab_size,
+                                                                  opt.min_word_count, data_utils.extra_tokens)
 
     train_src, train_tgt = \
         convert_text2idx(train_src, src_word2idx), convert_text2idx(train_tgt, tgt_word2idx)
@@ -25,18 +38,25 @@ def main(opt):
         convert_text2idx(dev_src, src_word2idx), convert_text2idx(dev_tgt, tgt_word2idx)
 
     # Save source/target vocabulary and train/dev data
-    torch.save((src_counter, src_word2idx, src_idx2word), '{}.src.dict'.format(opt.save_data))
-    torch.save((tgt_counter, tgt_word2idx, tgt_idx2word), '{}.tgt.dict'.format(opt.save_data))
+    torch.save(
+        {
+            'src_dict' : (src_counter, src_word2idx, src_idx2word),
+            'tgt_dict' : (tgt_counter, tgt_word2idx, tgt_idx2word),
+            'src_file' : opt.train_src,
+            'tgt_file' : opt.train_tgt,
+            'keep_case': opt.keep_case
+        }
+        ,'{}.dict'.format(opt.save_data)
+    )
     torch.save(
         {
             'train_src': train_src,     'train_tgt': train_tgt,
-            'dev_src'  : dev_src,         'dev_tgt': dev_tgt,
-            'src_vocab': src_word2idx,  'tgt_vocab': tgt_word2idx,
+            'dev_src'  : dev_src,       'dev_tgt'  : dev_tgt,
+            'src_dict' : src_word2idx,  'tgt_dict' : tgt_word2idx,
         }
         , '{}-train.t7'.format(opt.save_data)
     )
-    print('Saved the source vocabulary at {}.src.dict'.format(opt.save_data))
-    print('Saved the target vocabulary at {}.tgt.dict'.format(opt.save_data))
+    print('Saved the vocabulary at {}.dict'.format(opt.save_data))
     print('Saved the preprocessed train/dev data at {}-train.t7'.format(opt.save_data))
 
 
@@ -54,6 +74,7 @@ if __name__ == '__main__':
     parser.add_argument('-min_word_count', type=int, default=1)
     parser.add_argument('-max_len', type=int, default=50, help='Maximum sequence length')
     parser.add_argument('-keep_case', action='store_true')
+    parser.add_argument('-share_vocab', action='store_true')
     parser.add_argument('-save_data', required=True, type=str, help='Output file for the prepared data')
 
     opt = parser.parse_args()
