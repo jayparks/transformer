@@ -82,7 +82,7 @@ def read_parallel_corpus(src_path, tgt_path, max_len, keep_case=True):
             src_sents.append(src_words)
             tgt_sents.append(tgt_words)
 
-    print ('Removed {} empty lines'.format(empty_lines),
+    print ('Filtered {} empty lines'.format(empty_lines),
            'and {} lines exceeding the length {}'.format(exceed_lines, max_len))
     print ('Result: {} lines remained'.format(len(src_sents)))
     return src_sents, tgt_sents
@@ -95,11 +95,10 @@ def build_vocab(examples, max_size, min_freq, extra_tokens):
     if extra_tokens:
         idx2word += extra_tokens
         word2idx = {word: idx for idx, word in enumerate(extra_tokens)}
-
     min_freq = max(min_freq, 1)
     max_size = max_size + len(idx2word) if max_size else None
-    for words in examples:
-        for w in words:
+    for sent in examples:
+        for w in sent:
             counter.update([w])
     # first sort items in alphabetical order and then by frequency
     sorted_counter = sorted(counter.items(), key=lambda tup: tup[0])
