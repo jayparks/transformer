@@ -138,6 +138,9 @@ class PoswiseFeedForwardNet(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = LayerNormalization(d_model)
 
+        init.kaiming_normal(self.conv1.weight)
+        init.xavier_normal(self.conv2.weight)
+
     def forward(self, inputs):
         residual = inputs # inputs: [b_size x len_q x d_model]
         outputs = self.relu(self.conv1(inputs.transpose(1, 2)))
