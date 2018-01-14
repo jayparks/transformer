@@ -45,7 +45,7 @@ class Encoder(nn.Module):
             [self.layer_type(d_k, d_v, d_model, d_ff, n_heads, dropout) for _ in range(n_layers)])
 
     def forward(self, enc_inputs, enc_inputs_len, return_attn=False):
-        enc_outputs = self.src_emb(enc_inputs) * (self.d_model ** 0.5)
+        enc_outputs = self.src_emb(enc_inputs)
         enc_outputs += self.pos_emb(enc_inputs_len) # Adding positional encoding TODO: note
         enc_outputs = self.dropout_emb(enc_outputs)
 
@@ -72,7 +72,7 @@ class Decoder(nn.Module):
             [self.layer_type(d_k, d_v, d_model, d_ff, n_heads, dropout) for _ in range(n_layers)])
 
     def forward(self, dec_inputs, dec_inputs_len, enc_inputs, enc_outputs, return_attn=False):
-        dec_outputs = self.tgt_emb(dec_inputs) * (self.d_model ** 0.5)
+        dec_outputs = self.tgt_emb(dec_inputs)
         dec_outputs += self.pos_emb(dec_inputs_len) # Adding positional encoding # TODO: note
         dec_outputs = self.dropout_emb(dec_outputs)
 
