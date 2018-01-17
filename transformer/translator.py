@@ -19,6 +19,9 @@ class Translator(object):
 
         self.model_opt = model_opt
         model = Transformer(model_opt)
+        if use_cuda:
+            print('Using GPU..')
+            model = model.cuda()
 
         prob_proj = nn.LogSoftmax(dim=-1)
         model.load_state_dict(checkpoint['model_params'])
