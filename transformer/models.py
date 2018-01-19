@@ -11,6 +11,18 @@ from transformer.layers import EncoderLayer, DecoderLayer, \
                                WeightedEncoderLayer, WeightedDecoderLayer
 
 
+def proj_prob_simplex(inputs):
+    # project updated weights onto a probability simplex
+    # see https://arxiv.org/pdf/1101.6081.pdf
+    sorted_inputs, sorted_idx = torch.sort(inputs.view(-1))
+    dim = len(sorted_inputs)
+    for i in reversed(range(dim)):
+        t = (sorted_inputs[i:].sum() - 1) / (dim - i)
+        if t >= sorted_inputs[i]:
+            break
+    return torch.clamp(inputs-t, min=0.0)
+
+
 def get_attn_pad_mask(seq_q, seq_k):
     assert seq_q.dim() == 2 and seq_k.dim() == 2
     b_size, len_q = seq_q.size()
@@ -102,6 +114,7 @@ class Transformer(nn.Module):
         self.decoder = Decoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.n_heads,
                                opt.max_tgt_seq_len, opt.tgt_vocab_size, opt.dropout, opt.weighted_model)
         self.tgt_proj = Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
+        self.is_weighted = opt.weighted_model
 
         if opt.share_proj_weight:
             print('Sharing target embedding and projection..')
@@ -144,3 +157,11 @@ class Transformer(nn.Module):
 
         return dec_logits.view(-1, dec_logits.size(-1)), \
                enc_self_attns, dec_self_attns, dec_enc_attns
+
+    def proj_grad(self):
+        if self.weighted_model:
+            for name, param in self.named_parameters():
+                if 'w_kp' in name or 'w_a' in name:
+                    param.data = proj_prob_simplex(param.data)
+        else:
+            pass

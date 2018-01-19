@@ -118,6 +118,7 @@ def train(model, criterion, optimizer, train_iter, model_state):  # TODO: fix op
             clip_grad_norm(model.trainable_params(), float(opt.max_grad_norm))
         optimizer.step()
         optimizer.update_lr()
+        model.proj_grad()  # works only for weighted transformer
 
         train_loss_total += float(step_loss.data[0])
         n_words_total += torch.sum(dec_inputs_len)
