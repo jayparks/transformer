@@ -115,7 +115,20 @@ class Transformer(nn.Module):
 
     def trainable_params(self):
         # Avoid updating the position encoding
-        return filter(lambda p: p.requires_grad, self.parameters())
+        params = filter(lambda p: p[1].requires_grad, self.named_parameters())
+        # Add a separate parameter group for the weighted_model
+        param_groups = []
+        base_params = {'params': [], 'type': 'base'}
+        weighted_params = {'params': [], 'type': 'weighted'}
+        for name, param in params:
+            if 'w_kp' in name or 'w_a' in name:
+                weighted_params['params'].append(param)
+            else:
+                base_params['params'].append(param)
+        param_groups.append(base_params)
+        param_groups.append(weighted_params)
+
+        return param_groups
 
     def encode(self, enc_inputs, enc_inputs_len, return_attn=False):
         return self.encoder(enc_inputs, enc_inputs_len, return_attn)
