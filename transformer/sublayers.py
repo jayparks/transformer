@@ -71,7 +71,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class MultiBranchAttention(nn.Module):
-    def __init__(self, d_k, d_v, d_model, d_ff, n_branches, dropout, is_decoder=False):
+    def __init__(self, d_k, d_v, d_model, d_ff, n_branches, dropout):
         super(MultiBranchAttention, self).__init__()
         self.d_k = d_k
         self.d_v = d_v

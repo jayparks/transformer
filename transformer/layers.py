@@ -49,7 +49,7 @@ class WeightedDecoderLayer(nn.Module):
     def __init__(self, d_k, d_v, d_model, d_ff, n_branches, dropout=0.1):
         super(WeightedDecoderLayer, self).__init__()
         self.dec_self_attn = MultiHeadAttention(d_k, d_v, d_model, n_branches, dropout)
-        self.dec_enc_attn = MultiBranchAttention(d_k, d_v, d_model, d_ff, n_branches, dropout, True)
+        self.dec_enc_attn = MultiBranchAttention(d_k, d_v, d_model, d_ff, n_branches, dropout)
 
     def forward(self, dec_inputs, enc_outputs, self_attn_mask, enc_attn_mask):
         dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, dec_inputs,
