@@ -54,9 +54,9 @@ class MultiHeadAttention(nn.Module):
         self.layer_norm = LayerNormalization(d_model)
 
     def forward(self, q, k, v, attn_mask):
-        # q: Q query matrix [b_size x len_q x d_model]
-        # k: K key matrix   [b_size x len_k x d_model]
-        # v: V value matrix [b_size x len_v x d_model]
+        # q: [b_size x len_q x d_model]
+        # k: [b_size x len_k x d_model]
+        # v: [b_size x len_v x d_model] note (len_k == len_v)
 
         residual = q
         # outputs: a list of tensors of shape [b_size x len_q x d_v] (length: n_heads)
@@ -85,7 +85,7 @@ class MultiBranchAttention(nn.Module):
         self.w_kp = torch.rand(n_branches)
         self.w_kp = nn.Parameter(self.w_kp/self.w_kp.sum())
         self.w_a = torch.rand(n_branches)
-        self.w_a = nn.Parameter(self.w_a / self.w_a.sum())
+        self.w_a = nn.Parameter(self.w_a/self.w_a.sum())
 
         self.pos_ffn = nn.ModuleList([
             PoswiseFeedForwardNet(d_model, d_ff//n_branches, dropout) for _ in range(n_branches)])
@@ -95,9 +95,9 @@ class MultiBranchAttention(nn.Module):
         init.xavier_normal(self.w_o)
 
     def forward(self, q, k, v, attn_mask):
-        # q: Q query matrix [b_size x len_q x d_model]
-        # k: K key matrix   [b_size x len_k x d_model]
-        # v: V value matrix [b_size x len_v x d_model]
+        # q: [b_size x len_q x d_model]
+        # k: [b_size x len_k x d_model]
+        # v: [b_size x len_v x d_model] note (len_k == len_v)
 
         (d_v, d_model, n_branches) = (self.d_v, self.d_model, self.n_branches)
         residual = q.repeat(n_branches, 1, 1).view(n_branches, -1, d_model)
