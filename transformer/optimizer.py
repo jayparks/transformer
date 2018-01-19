@@ -21,7 +21,6 @@ class ScheduledOptimizer(object):
 
     def update_lr(self):
         ''' Learning rate scheduling per step '''
-
         self.n_current_steps += 1
         new_lr = np.power(self.d_model, -0.5) * np.min([
             np.power(self.n_current_steps, -0.5),
@@ -31,7 +30,5 @@ class ScheduledOptimizer(object):
             np.power(self.n_warmup_steps / 10, -1.5) * self.n_current_steps])
 
         for param_group in self.optimizer.param_groups:
-            if param_group['type'] == 'base':
-                param_group['lr'] = new_lr
-            else:   # setting separate learning rate for weighted model.
-                param_group['lr'] = new_lr_weighted
+            # set a separate lr for weighted model
+            param_group['lr'] = new_lr if param_group['type'] == 'base' else new_lr_weighted
