@@ -55,7 +55,7 @@ def main(opt):
     # If size_average=True (default): Loss for a mini-batch is averaged over non-ignore index targets.
     criterion = nn.CrossEntropyLoss(size_average=False, ignore_index=data_utils.PAD)
     optimizer = ScheduledOptimizer(optim.Adam(model.trainable_params(), betas=(0.9, 0.98), eps=1e-9),
-                                   opt.d_model, opt.n_warmup_steps)
+                                   opt.d_model, opt.n_layers, opt.n_warmup_steps)
     if opt.log:
         log_train_file = opt.log + '.train.log'
         log_dev_file = opt.log + '.valid.log'

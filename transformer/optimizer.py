@@ -33,5 +33,5 @@ class ScheduledOptimizer(object):
         for param_group in self.optimizer.param_groups:
             if param_group['type'] == 'base':
                 param_group['lr'] = new_lr
-            else:   # setting learning rate for weighted model.
+            else:   # setting separate learning rate for weighted model.
                 param_group['lr'] = new_lr_weighted
