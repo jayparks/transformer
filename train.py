@@ -199,8 +199,6 @@ if __name__ == '__main__':
     parser.add_argument('-max_grad_norm', default=None)
     parser.add_argument('-n_warmup_steps', type=int, default=4000)
     parser.add_argument('-display_freq', type=int, default=100)
-    parser.add_argument('-save_freq', type=int, default=1000)
-    parser.add_argument('-valid_freq', type=int, default=1000)
     parser.add_argument('-log', default=None)
     parser.add_argument('-model_path', type=str, required=True)
 

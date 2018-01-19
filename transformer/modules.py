@@ -64,9 +64,9 @@ class PosEncoding(nn.Module):
         pos_enc[:, 1::2] = np.cos(pos_enc[:, 1::2])
         pos_enc = np.concatenate([np.zeros([1, d_word_vec]).astype(np.float32), pos_enc])
 
-        # additional one row for PAD idx
+        # additional single row for PAD idx
         self.pos_enc = nn.Embedding(max_seq_len + 1, d_word_vec)
-        # fixed positional encoding
+        # fix positional encoding: exclude weight from grad computation
         self.pos_enc.weight = nn.Parameter(torch.from_numpy(pos_enc).float(), False)
 
     def forward(self, input_len):

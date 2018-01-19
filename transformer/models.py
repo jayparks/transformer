@@ -114,7 +114,7 @@ class Transformer(nn.Module):
         self.decoder = Decoder(opt.n_layers, opt.d_k, opt.d_v, opt.d_model, opt.d_ff, opt.n_heads,
                                opt.max_tgt_seq_len, opt.tgt_vocab_size, opt.dropout, opt.weighted_model)
         self.tgt_proj = Linear(opt.d_model, opt.tgt_vocab_size, bias=False)
-        self.is_weighted = opt.weighted_model
+        self.weighted_model = opt.weighted_model
 
         if opt.share_proj_weight:
             print('Sharing target embedding and projection..')
