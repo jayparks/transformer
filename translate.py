@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import torch
 import argparse
 
@@ -16,7 +17,7 @@ def main(opt):
     _, test_iter = load_test_data(opt.decode_input, opt.vocab, opt.batch_size, use_cuda)
 
     lines = 0
-    print ('Translated output will be written in {}'.format(opt.decode_output))
+    print('Translated output will be written in {}'.format(opt.decode_output))
     with open(opt.decode_output, 'w') as output:
         for batch in test_iter:
             all_hyp, all_scores = translator.translate_batch(batch.src)
@@ -25,7 +26,7 @@ def main(opt):
                     pred_line = convert_idx2text(idx_seq, tgt_idx2word)
                     output.write(pred_line + '\n')
             lines += batch.src[0].size(0)
-            print ('  {} lines decoded'.format(lines))
+            print('  {} lines decoded'.format(lines))
 
 
 if __name__ == '__main__':
@@ -42,4 +43,4 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     print(opt)
     main(opt)
-    print ('Terminated')
+    print('Terminated')

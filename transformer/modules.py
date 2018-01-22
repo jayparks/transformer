@@ -62,16 +62,17 @@ class PosEncoding(nn.Module):
             for pos in range(max_seq_len)])
         pos_enc[:, 0::2] = np.sin(pos_enc[:, 0::2])
         pos_enc[:, 1::2] = np.cos(pos_enc[:, 1::2])
-        pos_enc = np.concatenate([np.zeros([1, d_word_vec]).astype(np.float32), pos_enc])
+        pad_row = np.zeros(1, d_word_vec).astype(np.float32)
+        pos_enc = np.concatenate([pad_row, pos_enc])
 
         # additional single row for PAD idx
         self.pos_enc = nn.Embedding(max_seq_len + 1, d_word_vec)
         # fix positional encoding: exclude weight from grad computation
-        self.pos_enc.weight = nn.Parameter(torch.from_numpy(pos_enc).float(), False)
+        self.pos_enc.weight = nn.Parameter(torch.from_numpy(pos_enc), requires_grad=False)
 
     def forward(self, input_len):
-        max_len = max(input_len)
+        max_len = torch.max(input_len)
         tensor = torch.cuda.LongTensor if input_len.is_cuda else torch.LongTensor
-        input_pos = tensor([list(range(1, len+1))+[0]*(max_len-len) for len in input_len])
+        input_pos = tensor([list(range(1, len+1)) + [0]*(max_len-len) for len in input_len])
 
         return self.pos_enc(input_pos)

@@ -3,7 +3,6 @@ import numpy as np
 
 class ScheduledOptimizer(object):
     '''A simple wrapper class for learning rate scheduling'''
-
     def __init__(self, optimizer, d_model, n_layers, n_warmup_steps):
         self.optimizer = optimizer
         self.d_model = d_model
@@ -30,5 +29,5 @@ class ScheduledOptimizer(object):
             np.power(self.n_warmup_steps / 10, -1.5) * self.n_current_steps])
 
         for param_group in self.optimizer.param_groups:
-            # set a separate lr for weighted model
+            # set a separate lr for the weighted model
             param_group['lr'] = new_lr if param_group['type'] == 'base' else new_lr_weighted

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import time
@@ -196,7 +197,7 @@ if __name__ == '__main__':
     parser.add_argument('-batch_size', type=int, default=128)
     parser.add_argument('-max_src_seq_len', type=int, default=50)
     parser.add_argument('-max_tgt_seq_len', type=int, default=50)
-    parser.add_argument('-max_grad_norm', default=None)
+    parser.add_argument('-max_grad_norm', type=float, default=None)
     parser.add_argument('-n_warmup_steps', type=int, default=4000)
     parser.add_argument('-display_freq', type=int, default=100)
     parser.add_argument('-log', default=None)
