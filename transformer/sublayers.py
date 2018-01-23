@@ -57,7 +57,6 @@ class MultiHeadAttention(nn.Module):
         # q: [b_size x len_q x d_model]
         # k: [b_size x len_k x d_model]
         # v: [b_size x len_v x d_model] note (len_k == len_v)
-
         residual = q
         # outputs: a list of tensors of shape [b_size x len_q x d_v] (length: n_heads)
         outputs, attn = self.attention(q, k, v, attn_mask=attn_mask)
@@ -98,7 +97,6 @@ class MultiBranchAttention(nn.Module):
         # q: [b_size x len_q x d_model]
         # k: [b_size x len_k x d_model]
         # v: [b_size x len_v x d_model] note (len_k == len_v)
-
         d_v, d_model, n_branches = self.d_v, self.d_model, self.n_branches
         residual = q.repeat(n_branches, 1, 1).view(n_branches, -1, d_model)
         b_size = k.size(0)
