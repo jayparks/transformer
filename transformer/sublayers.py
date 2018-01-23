@@ -98,21 +98,19 @@ class MultiBranchAttention(nn.Module):
         # k: [b_size x len_k x d_model]
         # v: [b_size x len_v x d_model] note (len_k == len_v)
         d_v, d_model, n_branches = self.d_v, self.d_model, self.n_branches
-        residual = q.repeat(n_branches, 1, 1).view(n_branches, -1, d_model)
+        residual = q
         b_size = k.size(0)
 
         # outputs: a list of tensors of shape [b_size x len_q x d_v] (length: n_heads)
         outputs, attn = self.attention(q, k, v, attn_mask=attn_mask)
         outputs = torch.cat(outputs, dim=0).view(n_branches, -1, d_v)
-        outputs = torch.bmm(outputs, self.w_o)  # [n_branches x b_size * len_q x d_model]
-        outputs = self.dropout(outputs) + residual
+        outputs = torch.bmm(outputs, self.w_o).sum(dim=0).view(b_size, -1, d_model)
+        outputs = self.layer_norm(self.dropout(outputs) + residual) # [b_size x len_q x d_model]
 
-        outputs = self.w_kp.view(-1, 1, 1) * outputs
-        outputs = [out.squeeze(0).view(b_size, -1, d_model) \
-                   for out in torch.split(outputs, split_size=1, dim=0)] # [b_size x len_q x d_model] x n_branches
-        outputs = torch.cat([pos_ffn(output) for output, pos_ffn in \
-                             zip(outputs, self.pos_ffn)], dim=0).view(n_branches, -1, d_model)
-        outputs = self.w_a.view(-1, 1, 1) * outputs
+        outputs = [kappa * outputs for kappa in self.w_kp]
+        outputs = torch.cat([pos_ffn(output) for output, pos_ffn \
+                      in zip(outputs, self.pos_ffn)], dim=0).view(n_branches, -1, d_model)
+        outputs = self.w_a.view(-1, 1, 1) * outputs # [n_branches x b_size * len_q x d_model]
         outputs = torch.sum(outputs, dim=0).view(b_size, -1, d_model) # [b_size x len_q x d_model]
 
         return outputs, attn
