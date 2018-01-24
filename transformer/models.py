@@ -13,11 +13,11 @@ from transformer.layers import EncoderLayer, DecoderLayer, \
 def proj_prob_simplex(inputs):
     # project updated weights onto a probability simplex
     # see https://arxiv.org/pdf/1101.6081.pdf
-    sorted_inputs, sorted_idx = torch.sort(inputs.view(-1))
+    sorted_inputs, sorted_idx = torch.sort(inputs.view(-1), descending=True)
     dim = len(sorted_inputs)
     for i in reversed(range(dim)):
-        t = (sorted_inputs[i:].sum() - 1) / (dim - i)
-        if t >= sorted_inputs[i]:
+        t = (sorted_inputs[:i+1].sum() - 1) / (i+1)
+        if sorted_inputs[i] > t:
             break
     return torch.clamp(inputs-t, min=0.0)
 
