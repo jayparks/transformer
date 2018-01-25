@@ -62,8 +62,8 @@ class PosEncoding(nn.Module):
             for pos in range(max_seq_len)])
         pos_enc[:, 0::2] = np.sin(pos_enc[:, 0::2])
         pos_enc[:, 1::2] = np.cos(pos_enc[:, 1::2])
-        pad_row = np.zeros([1, d_word_vec]).astype(np.float32)
-        pos_enc = np.concatenate([pad_row, pos_enc])
+        pad_row = np.zeros([1, d_word_vec])
+        pos_enc = np.concatenate([pad_row, pos_enc]).astype(np.float32)
 
         # additional single row for PAD idx
         self.pos_enc = nn.Embedding(max_seq_len + 1, d_word_vec)
