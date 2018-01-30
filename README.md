@@ -9,3 +9,4 @@ This repository contains a pytorch implementaion of ["Attention is All You Need"
 
 **Code**
 - [jadore801120/attention-is-all-you-need](https://github.com/jadore801120/attention-is-all-you-need-pytorch)
+- [OpenNMT/OpenNMT-py](https://github.com/OpenNMT/OpenNMT-py)
