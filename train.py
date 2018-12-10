@@ -146,7 +146,7 @@ def train(model, criterion, optimizer, train_iter, model_state):  # TODO: fix op
             train_loss, n_words, n_sents = (train_loss_total, n_words_total, n_sents_total)
             start_time = time.time()
 
-    # return per_word_loss over 1 epoch.
+    # return per_word_loss over 1 epoch
     return math.exp(train_loss_total / n_words_total), n_sents_total
 
 
@@ -155,22 +155,23 @@ def eval(model, criterion, dev_iter):
     eval_loss_total = 0.0
     n_words_total, n_sents_total = 0, 0
 
-    print('Evaluation step')
-    for batch_idx, batch in enumerate(dev_iter):
-        enc_inputs, enc_inputs_len = batch.src
-        dec_, dec_inputs_len = batch.trg
-        dec_inputs = dec_[:, :-1]
-        dec_targets = dec_[:, 1:]
-        dec_inputs_len = dec_inputs_len - 1
+    print('Evaluation')
+    with torch.no_grad():
+        for batch_idx, batch in enumerate(dev_iter):
+            enc_inputs, enc_inputs_len = batch.src
+            dec_, dec_inputs_len = batch.trg
+            dec_inputs = dec_[:, :-1]
+            dec_targets = dec_[:, 1:]
+            dec_inputs_len = dec_inputs_len - 1
 
-        dec_logits, *_ = model(enc_inputs, enc_inputs_len, dec_inputs, dec_inputs_len)
-        step_loss = criterion(dec_logits, dec_targets.contiguous().view(-1))
-        eval_loss_total += float(step_loss.data[0])
-        n_words_total += torch.sum(dec_inputs_len)
-        n_sents_total += dec_inputs_len.size(0)
-        print('  {} samples seen'.format(n_sents_total))
+            dec_logits, *_ = model(enc_inputs, enc_inputs_len, dec_inputs, dec_inputs_len)
+            step_loss = criterion(dec_logits, dec_targets.contiguous().view(-1))
+            eval_loss_total += float(step_loss.data[0])
+            n_words_total += torch.sum(dec_inputs_len)
+            n_sents_total += dec_inputs_len.size(0)
+            print('  {} samples seen'.format(n_sents_total))
 
-    # return per_word_loss.
+    # return per_word_loss
     return math.exp(eval_loss_total / n_words_total), n_sents_total
 
 

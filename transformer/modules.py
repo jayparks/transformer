@@ -9,7 +9,8 @@ class Linear(nn.Module):
     def __init__(self, in_features, out_features, bias=True):
         super(Linear, self).__init__()
         self.linear = nn.Linear(in_features, out_features, bias=bias)
-        init.xavier_normal(self.linear.weight)
+        init.xavier_normal_(self.linear.weight)
+        init.zeros_(self.linear.bias)
 
     def forward(self, inputs):
         return self.linear(inputs)
@@ -23,33 +24,35 @@ class ScaledDotProductAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, q, k, v, attn_mask=None):
-        # q: [b_size x len_q x d_k]
-        # k: [b_size x len_k x d_k]
-        # v: [b_size x len_v x d_v] note: (len_k == len_v)
-        attn = torch.bmm(q, k.transpose(1, 2)) / self.scale_factor  # attn: [b_size x len_q x len_k]
+        # q: [b_size x n_heads x len_q x d_k]
+        # k: [b_size x n_heads x len_k x d_k]
+        # v: [b_size x n_heads x len_v x d_v] note: (len_k == len_v)
+
+        # attn: [b_size x n_heads x len_q x len_k]
+        scores = torch.matmul(q, k.transpose(-1, -2)) / self.scale_factor
         if attn_mask is not None:
-            assert attn_mask.size() == attn.size()
-            attn.data.masked_fill_(attn_mask, -float('inf'))
+            assert attn_mask.size() == scores.size()
+            scores.masked_fill_(attn_mask, -1e9)
+        attn = self.dropout(self.softmax(scores))
 
-        attn = self.softmax(attn)
-        attn = self.dropout(attn)
-        outputs = torch.bmm(attn, v) # outputs: [b_size x len_q x d_v]
+        # outputs: [b_size x n_heads x len_q x d_v]
+        context = torch.matmul(attn, v)
 
-        return outputs, attn
+        return context, attn
 
 
 class LayerNormalization(nn.Module):
-    def __init__(self, d_hid, eps=1e-3):
+    def __init__(self, d_hid, eps=1e-6):
         super(LayerNormalization, self).__init__()
-        self.gamma = nn.Parameter(torch.ones(d_hid), requires_grad=True)
-        self.beta = nn.Parameter(torch.zeros(d_hid), requires_grad=True)
+        self.gamma = nn.Parameter(torch.ones(d_hid))
+        self.beta = nn.Parameter(torch.zeros(d_hid))
         self.eps = eps
 
     def forward(self, z):
         mean = z.mean(dim=-1, keepdim=True,)
         std = z.std(dim=-1, keepdim=True,)
-        ln_out = (z - mean.expand_as(z)) / (std.expand_as(z) + self.eps)
-        ln_out = self.gamma.expand_as(ln_out) * ln_out + self.beta.expand_as(ln_out)
+        ln_out = (z - mean) / (std + self.eps)
+        ln_out = self.gamma * ln_out + self.beta
 
         return ln_out
 

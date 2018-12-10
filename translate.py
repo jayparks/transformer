@@ -19,14 +19,15 @@ def main(opt):
     lines = 0
     print('Translated output will be written in {}'.format(opt.decode_output))
     with open(opt.decode_output, 'w') as output:
-        for batch in test_iter:
-            all_hyp, all_scores = translator.translate_batch(batch.src)
-            for idx_seqs in all_hyp:
-                for idx_seq in idx_seqs:
-                    pred_line = convert_idx2text(idx_seq, tgt_idx2word)
-                    output.write(pred_line + '\n')
-            lines += batch.src[0].size(0)
-            print('  {} lines decoded'.format(lines))
+        with torch.no_grad():
+            for batch in test_iter:
+                all_hyp, all_scores = translator.translate_batch(batch.src)
+                for idx_seqs in all_hyp:
+                    for idx_seq in idx_seqs:
+                        pred_line = convert_idx2text(idx_seq, tgt_idx2word)
+                        output.write(pred_line + '\n')
+                lines += batch.src[0].size(0)
+                print('  {} lines decoded'.format(lines))
 
 
 if __name__ == '__main__':

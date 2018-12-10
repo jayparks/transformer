@@ -27,9 +27,7 @@ def get_attn_pad_mask(seq_q, seq_k):
     b_size, len_q = seq_q.size()
     b_size, len_k = seq_k.size()
     pad_attn_mask = seq_k.data.eq(data_utils.PAD).unsqueeze(1)  # b_size x 1 x len_k
-    pad_attn_mask = pad_attn_mask.expand(b_size, len_q, len_k) # b_size x len_q x len_k
-
-    return pad_attn_mask
+    return pad_attn_mask.expand(b_size, len_q, len_k)  # b_size x len_q x len_k
 
 
 def get_attn_subsequent_mask(seq):
